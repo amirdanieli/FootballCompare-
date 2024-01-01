@@ -9,7 +9,6 @@ transformed_data = {
     for team, team_data in data.items()
 }
 
-# Write the transformed data to a new JSON file
 with open('updated_json.json', 'w') as file:
     json.dump(transformed_data, file, indent=4)
 
