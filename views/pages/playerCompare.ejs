@@ -1,0 +1,279 @@
+<% layout('layouts/boilerplate', { user_id: user_id })%>
+
+<h1>This is the player compare page!</h1>
+ <!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <label for="teamSelect0" class="form-label">Select Team:</label>
+            <select id="teamSelect0" class="form-select">
+                <!-- Options for teams will be populated dynamically -->
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="playerSelect0" class="form-label">Select Player:</label>
+            <select id="playerSelect0" class="form-select">
+                <!-- Options for players will be populated dynamically based on selected team -->
+            </select>
+        </div>
+    </div>
+    <div class="row mt-4" id="additionalSelectors">
+        <!-- Additional selectors will be added here -->
+    </div>
+    <div class="row mt-2">
+        <div class="col">
+            <button id="addPlayerButton" class="btn btn-primary">+</button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="attributeSelect" class="form-label">Select Attribute:</label>
+        <select id="attributeSelect" class="form-select">
+            <!-- Options for teams will be populated dynamically -->
+        </select>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <button id="createRadarChartButton" class="btn btn-primary">Create Radar Chart</button>
+        </div>
+    </div>    
+    <div>
+        <canvas id="radarChart" width="400" height="400"></canvas>
+    </div>
+</div>
+
+<script>
+const attributeSelect = document.getElementById('attributeSelect');
+
+const attributeOptions = ['Attacking', 'Skills', 'Movement', 'Power', 'Mentality', 'Defending', 'Goalkeeping'];
+
+// Add options to the select attribute element
+attributeOptions.forEach(option => {
+    const optionElement = document.createElement('option');
+    optionElement.value = option.toLowerCase(); // Set option value
+    optionElement.textContent = option; // Set option text
+    attributeSelect.appendChild(optionElement); // Append the option to the select element
+});
+
+
+let clickCount = 0;
+let index = 1;
+
+function addPlayerSelector() {
+    clickCount++;
+    if (clickCount <= 2) {
+        if(clickCount == 2) {
+            document.getElementById('addPlayerButton').style.display = 'none';
+        }
+        const additionalSelectors = document.getElementById('additionalSelectors');
+        index += 1;
+        if (additionalSelectors.children.length === 0) {
+            index = 1;
+        }
+
+        const row = document.createElement('div');
+        row.classList.add('row', 'mt-2');
+
+        const col = document.createElement('div');
+        col.classList.add('col-md-6');
+
+        const teamLabel = document.createElement('label');
+        teamLabel.htmlFor = `teamSelect${index}`;
+        teamLabel.classList.add('form-label');
+        teamLabel.textContent = 'Select Team:';
+        col.appendChild(teamLabel);
+
+        const teamSelect = document.createElement('select');
+        teamSelect.id = `teamSelect${index}`;
+        teamSelect.classList.add('form-select');
+        col.appendChild(teamSelect);
+
+        row.appendChild(col);
+
+        const col2 = document.createElement('div');
+        col2.classList.add('col-md-6');
+
+        const playerLabel = document.createElement('label');
+        playerLabel.htmlFor = `playerSelect${index}`;
+        playerLabel.classList.add('form-label');
+        playerLabel.textContent = 'Select Player:';
+        col2.appendChild(playerLabel);
+
+        const playerSelect = document.createElement('select');
+        playerSelect.id = `playerSelect${index}`;
+        playerSelect.classList.add('form-select');
+        col2.appendChild(playerSelect);
+
+        row.appendChild(col2);
+
+        additionalSelectors.appendChild(row);
+
+        populateTeamDropdown(index);
+        attachTeamChangeEvent(index);
+
+        if (clickCount === 1 || clickCount === 2) {
+            const removePlayerButton = document.createElement('button');
+            removePlayerButton.classList.add('btn', 'btn-danger', 'mt-2');
+           
+            removePlayerButton.style.width = 'auto'; 
+            removePlayerButton.style.margin = 'auto';
+
+            removePlayerButton.textContent = 'Remove Player';
+            removePlayerButton.onclick = function () {
+                additionalSelectors.removeChild(row);
+                clickCount--;
+                if (clickCount === 1) {
+                    document.getElementById('addPlayerButton').style.display = 'block';
+                    document.getElementById('addPlayerButton').style.margin = '0 auto';
+                }
+            };
+            row.appendChild(removePlayerButton);
+        }
+    }
+}
+
+function attachTeamChangeEvent(index) {
+    const teamSelect = document.getElementById(`teamSelect${index}`);
+    teamSelect.addEventListener('change', () => populatePlayerDropdown(teamSelect.value, index));
+}
+
+async function fetchPlayerData() {
+    try {
+        const response = await fetch('../../data/all_pl_player_data.json');
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Response is not in JSON format');
+        }
+        const teamData = await response.json();
+        return teamData;
+    } catch (error) {
+        console.error('Error fetching player data:', error);
+        throw error; // Propagate the error if necessary
+    }
+}
+
+async function populateTeamDropdown(index) {
+    const teamData = await fetchPlayerData();
+    const teamSelect = document.getElementById(`teamSelect${index}`);
+
+    for (const team in teamData) {
+        const option = document.createElement('option');
+        option.value = team;
+        option.textContent = team;
+        teamSelect.appendChild(option);
+    }
+
+    teamSelect.addEventListener('change', () => populatePlayerDropdown(teamData, index));
+    populatePlayerDropdown(teamData, index);
+}
+
+function populatePlayerDropdown(teamData, index) {
+    const teamSelect = document.getElementById(`teamSelect${index}`);
+    const selectedTeam = teamSelect.value;
+    const playerSelect = document.getElementById(`playerSelect${index}`);
+    playerSelect.innerHTML = '';
+
+    const teamPlayers = teamData[selectedTeam];
+    if (teamPlayers) {
+        for (const player in teamPlayers) {
+            const playerName = player;
+            const option = document.createElement('option');
+            option.value = playerName;
+            option.textContent = playerName;
+            playerSelect.appendChild(option);
+        }
+    }
+}
+
+const addPlayerButton = document.getElementById('addPlayerButton');
+addPlayerButton.addEventListener('click', addPlayerSelector);
+
+populateTeamDropdown(0);
+
+
+function createRadarChart() {
+    const selectedPlayers = [];
+    const selectedAttribute = document.getElementById('attributeSelect').value;
+
+    const initialPlayerSelect = document.getElementById('playerSelect0');
+    const initialTeamSelect = document.getElementById('teamSelect0');
+    selectedPlayers.push({
+        team: initialTeamSelect.value,
+        name: initialPlayerSelect.value
+    });
+
+    const additionalSelectors = document.getElementById('additionalSelectors');
+    const playerSelects = additionalSelectors.querySelectorAll('[id^=playerSelect]');
+    const teamSelects = additionalSelectors.querySelectorAll('[id^=teamSelect]');
+    playerSelects.forEach((playerSelect, index) => {
+        selectedPlayers.push({
+            team: teamSelects[index].value,
+            name: playerSelect.value
+        });
+    });
+
+    const attributeToSend = selectedAttribute.charAt(0).toUpperCase() + selectedAttribute.slice(1);
+    generateRadarChart(selectedPlayers, attributeToSend);
+}
+
+
+
+const createRadarChartButton = document.getElementById('createRadarChartButton');
+createRadarChartButton.addEventListener('click', createRadarChart);
+
+
+async function generateRadarChart(players, attribute) {
+    console.log(`Attribute : ${attribute}`);
+    players.forEach((player, index) => {
+        console.log(`Player ${index + 1}:`);
+        console.log('Team:', player.team);
+        console.log('Name:', player.name);
+    });
+    const allPlayerData = await fetchPlayerData(); // Fetch all player data
+
+    // Prepare data for the radar chart
+    const data = {
+        labels: Object.keys(allPlayerData[players[0]][Object.keys(allPlayerData[players[0]])[0]][attribute]), // Attribute names of the first player
+        datasets: []
+    };
+    console.log(data);
+
+    // Loop through each player and extract attribute values
+    players.forEach(playerName => {
+        const playerAttributes = Object.values(allPlayerData[playerName][Object.keys(allPlayerData[playerName])[0]][attribute]);
+        const dataset = {
+            label: playerName,
+            backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`,
+            borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
+            borderWidth: 1,
+            data: playerAttributes
+        };
+        data.datasets.push(dataset); // Add dataset for each player
+    });
+
+    // Configure radar chart options
+    const options = {
+        scale: {
+            ticks: {
+                beginAtZero: true,
+                max: 100 // Assuming attribute values are in the range of 0-100
+            }
+        }
+    };
+
+    // Create the radar chart
+    const radarChartContext = document.getElementById('radarChart').getContext('2d');
+    const radarChart = new Chart(radarChartContext, {
+        type: 'radar',
+        data: data,
+        options: options
+    });
+}
+
+
+
+
+</script>

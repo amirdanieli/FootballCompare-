@@ -1,0 +1,30 @@
+<nav class="navbar sticky-top bg-body-tertiary bg-dark border-bottom border-body navbar-expand-lg" data-bs-theme="dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">Transfer Suggest ⌂</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="/">Home</a>
+                <a class="nav-link" href="/pages/transfersuggest">Transfer Suggest</a>
+                <a class="nav-link" href="/pages/playercompare">Player Compare</a>
+                <!-- <a class="nav-link" href="/pages/login">Login</a>
+                <a class="nav-link" href="/pages/register">Register</a>
+                <form class="nav-item" id="logoutForm" action="/logout" method="POST">
+                    <button type="submit" class="btn btn-outline-danger nav-link">Logout</button>
+                </form> -->
+                <% if (!user_id) { %>
+                    <!-- Display these links if user is not logged in -->
+                    <a class="nav-link" href="/pages/login">Login</a>
+                    <a class="nav-link" href="/pages/register">Register</a>
+                <% } else { %>
+                    <!-- Display this button if user is logged in -->
+                    <form class="nav-item" id="logoutForm" action="/logout" method="POST">
+                        <button type="submit" class="btn btn-outline-danger nav-link">Logout</button>
+                    </form>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</nav>

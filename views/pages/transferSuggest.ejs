@@ -1,0 +1,19 @@
+<% layout('layouts/boilerplate', { user_id: user_id })%>
+
+    <h1>This is the transfer suggestion page!</h1>
+    const fs = require('fs');
+
+// File path
+const filePath = '/../../package-lock.json'; // Replace this with your file path
+
+// Read the file asynchronously
+fs.readFile(filePath, 'utf8', (err, data) => {
+  if (err) {
+    console.error('Error reading the file:', err);
+    return;
+  }
+
+  console.log('File content:');
+  console.log(data); // Print the file content to the console
+});
+
