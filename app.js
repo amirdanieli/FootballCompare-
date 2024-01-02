@@ -4,6 +4,7 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
 const catchAsync = require('./utils/catchAsync');
+const requireLogin = require('./utils/requireLogin');
 const ExpressError = require('./utils/ExpressError');
 const { error } = require('console');
 const User = require('./models/user')
@@ -63,13 +64,6 @@ app.use((req, res, next) => {
     next();
 })
 
-const requireLogin = (req, res, next) => {
-    if (!req.session.user_id) {
-        req.session.returnTo = req.originalUrl;
-        return res.redirect('/pages/login');
-    }
-    next();
-}
 
 app.get('/', (req, res) => {
     const sessionIsActive = !!req.session.user_id; 
