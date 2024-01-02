@@ -1,4 +1,3 @@
-<script>
 const attributeSelect = document.getElementById('attributeSelect');
 
 const attributeOptions = ['Attacking', 'Skills', 'Movement', 'Power', 'Mentality', 'Defending', 'Goalkeeping'];
@@ -264,4 +263,3 @@ async function generateRadarChart(players, attribute) {
 // Redirect to the new HTML page with the chart data in the query parameter
     window.location.href = `./radarChart?chartData=${chartDataString}`;
 }
-</script>

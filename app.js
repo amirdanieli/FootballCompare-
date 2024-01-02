@@ -34,6 +34,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true }));
+app.use('/utils', express.static('utils'));
 
 const sessionConfig = {
     name: 'session',
@@ -69,7 +70,6 @@ const requireLogin = (req, res, next) => {
 
 const jsonFilePath = path.join(__dirname, 'data', 'all_pl_player_data.json');
 
-// Create a route to serve the JSON file
 app.get('/data/all_pl_player_data.json', (req, res) => {
   res.sendFile(jsonFilePath);
 });
