@@ -235,7 +235,14 @@ createRadarChartButton.addEventListener('click', createRadarChart);
 
 
 async function generateRadarChart(players, attribute) {
-    const allPlayerData = await fetchPlayerData(); // Fetch all player data
+    const predefinedColors = [
+        'rgba(255, 99, 132, 0.5)', 
+        'rgba(54, 162, 235, 0.5)',
+        'rgba(255, 206, 86, 0.5)', 
+    ];
+    const colors = predefinedColors.slice(0, players.length);
+
+    const allPlayerData = await fetchPlayerData(); 
 
     const firstPlayerAttributes = allPlayerData[players[0].team][players[0].name][attribute];
     const firstPlayerAttributesKeys = (Object.keys(firstPlayerAttributes))
@@ -244,16 +251,14 @@ async function generateRadarChart(players, attribute) {
         datasets: []
     };
 
-    // Loop through each player and extract attribute values
-    players.forEach(player => {
-        console.log("HeERE")
+    players.forEach((player, index) => {
         const playerAttributes = Object.values(allPlayerData[player.team][player.name][attribute])
         const playerAttributesValues =  Object.values(playerAttributes);
         const dataset = {
             label: player.name,
-            backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`,
-            borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
-            borderWidth: 3,
+            backgroundColor: colors[index % colors.length],
+            borderColor: 'rgba(0, 0, 0, 1)',
+            borderWidth: 2,
             data: playerAttributes
         };
         data.datasets.push(dataset); // Add dataset for each player
