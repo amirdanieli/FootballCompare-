@@ -60,6 +60,7 @@ app.use((req, res, next) => {
 
 const requireLogin = (req, res, next) => {
     if (!req.session.user_id) {
+        req.session.returnTo = req.originalUrl;
         return res.redirect('/pages/login');
     }
     next();
@@ -98,23 +99,14 @@ app.post('/login', catchAsync(async (req, res) => {
     }
 
     const foundUser = await User.findAndValidate(req.body.user.email, req.body.user.password);
-    // const foundUser = await User.findOne({ email: req.body.user.email });
-
-    // if (!foundUser) {
-    //     throw new ExpressError('Invalid credentials', 401); 
-    // }
-
-    // const passwordMatch = await bcrypt.compare(req.body.user.password , foundUser.password);
-
-    // if (!passwordMatch) {
-    //     throw new ExpressError('Invalid credentials', 401); // Unauthorized
-    // }
-
     if (foundUser) {
     req.flash('success', 'Succesfully logged in!');
 
         req.session.user_id = foundUser._id;
-        res.redirect('/');
+        const returnTo = req.session.returnTo || '/';
+        res.redirect(returnTo);
+
+        delete req.session.returnTo;
     }
 
     req.flash('error', 'Invalid credentials');
