@@ -148,6 +148,18 @@ async function fetchPlayerData() {
             throw new Error('Response is not in JSON format');
         }
         const teamData = await response.json();
+
+        for (const team in teamData) {
+            for (const player in teamData[team]) {
+                try {
+                    const playerData = JSON.parse(teamData[team][player].replace(/'/g, '"'));
+                    teamData[team][player] = playerData;
+                } catch (error) {
+                    console.error(`Error parsing player data for ${player} in team ${team}:`, error);
+                }
+            }
+        }
+
         return teamData;
     } catch (error) {
         console.error('Error fetching player data:', error);
@@ -226,26 +238,22 @@ createRadarChartButton.addEventListener('click', createRadarChart);
 
 
 async function generateRadarChart(players, attribute) {
-    console.log(`Attribute : ${attribute}`);
-    players.forEach((player, index) => {
-        console.log(`Player ${index + 1}:`);
-        console.log('Team:', player.team);
-        console.log('Name:', player.name);
-    });
     const allPlayerData = await fetchPlayerData(); // Fetch all player data
 
-    // Prepare data for the radar chart
+    const firstPlayerAttributes = allPlayerData[players[0].team][players[0].name][attribute];
+    const firstPlayerAttributesKeys = (Object.keys(firstPlayerAttributes))
     const data = {
-        labels: Object.keys(allPlayerData[players[0]][Object.keys(allPlayerData[players[0]])[0]][attribute]), // Attribute names of the first player
+        labels: firstPlayerAttributesKeys,
         datasets: []
     };
-    console.log(data);
 
     // Loop through each player and extract attribute values
-    players.forEach(playerName => {
-        const playerAttributes = Object.values(allPlayerData[playerName][Object.keys(allPlayerData[playerName])[0]][attribute]);
+    players.forEach(player => {
+        console.log("HeERE")
+        const playerAttributes = Object.values(allPlayerData[player.team][player.name][attribute])
+        const playerAttributesValues =  Object.values(playerAttributes);
         const dataset = {
-            label: playerName,
+            label: player.name,
             backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`,
             borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
             borderWidth: 1,
@@ -253,16 +261,29 @@ async function generateRadarChart(players, attribute) {
         };
         data.datasets.push(dataset); // Add dataset for each player
     });
+    console.log(data);
+
 
     // Configure radar chart options
     const options = {
-        scale: {
-            ticks: {
-                beginAtZero: true,
-                max: 100 // Assuming attribute values are in the range of 0-100
-            }
+    scale: {
+        ticks: {
+            beginAtZero: true,
+            max: 99,
+            fontSize: 14,
+            fontWeight: 'bold',
+            fontColor: 'white' // Set the font color for the labels
+        },
+        angleLines: {
+            lineWidth: 2, // Adjust the width of the radial lines
+            color: 'white' // Set the color of the radial lines
+        },
+        gridLines: {
+            color: 'white', // Set the color of the circular grid lines
+            lineWidth: 1 // Adjust the width of the circular grid lines
         }
-    };
+    }
+};
 
     // Create the radar chart
     const radarChartContext = document.getElementById('radarChart').getContext('2d');
@@ -272,8 +293,5 @@ async function generateRadarChart(players, attribute) {
         options: options
     });
 }
-
-
-
 
 </script>
