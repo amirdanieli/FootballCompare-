@@ -1,7 +1,5 @@
 <% layout('layouts/boilerplate', { user_id: user_id })%>
 
-<h1>This is the player compare page!</h1>
- <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container mt-4">
     <div class="row">
@@ -29,7 +27,6 @@
     <div class="col-md-6">
         <label for="attributeSelect" class="form-label">Select Attribute:</label>
         <select id="attributeSelect" class="form-select">
-            <!-- Options for teams will be populated dynamically -->
         </select>
     </div>
     <div class="row mt-4">
@@ -256,7 +253,7 @@ async function generateRadarChart(players, attribute) {
             label: player.name,
             backgroundColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.2)`,
             borderColor: `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 1)`,
-            borderWidth: 1,
+            borderWidth: 3,
             data: playerAttributes
         };
         data.datasets.push(dataset); // Add dataset for each player
@@ -270,20 +267,22 @@ async function generateRadarChart(players, attribute) {
         ticks: {
             beginAtZero: true,
             max: 99,
-            fontSize: 14,
+            fontSize: 30, // Adjust the font size incrementally
             fontWeight: 'bold',
-            fontColor: 'white' // Set the font color for the labels
+            fontColor: 'rgba(255, 255, 255)'
         },
         angleLines: {
-            lineWidth: 2, // Adjust the width of the radial lines
-            color: 'white' // Set the color of the radial lines
+            lineWidth: 2, // Adjust the width of the radial lines incrementally
+            color: 'rgba(255, 255, 255)'
         },
         gridLines: {
-            color: 'white', // Set the color of the circular grid lines
-            lineWidth: 1 // Adjust the width of the circular grid lines
+            color: 'rgba(255, 255, 255)',
+            lineWidth: 2 // Adjust the width of the circular grid lines incrementally
         }
     }
 };
+
+
 
     // Create the radar chart
     const radarChartContext = document.getElementById('radarChart').getContext('2d');
@@ -292,6 +291,13 @@ async function generateRadarChart(players, attribute) {
         data: data,
         options: options
     });
-}
 
+    const chartDataString = encodeURIComponent(JSON.stringify({
+    data: data,
+    options: options
+    }));
+
+// Redirect to the new HTML page with the chart data in the query parameter
+    window.location.href = `./radarChart?chartData=${chartDataString}`;
+}
 </script>

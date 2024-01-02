@@ -161,6 +161,11 @@ app.get('/pages/playercompare', requireLogin, (req, res) => {
     res.render('pages/playerCompare', { user_id: sessionIsActive });
 })
 
+app.get('/pages/radarChart', requireLogin, (req, res) => {
+    const sessionIsActive = !!req.session.user_id; 
+    res.render('pages/radarChart', { user_id: sessionIsActive });
+})
+
 app.get('/pages/transferSuggest', requireLogin, (req, res) => {
     const sessionIsActive = !!req.session.user_id; 
     res.render('pages/transferSuggest', { user_id: sessionIsActive });
