@@ -19,7 +19,7 @@ def fix_json_format(data):
 
 fixed_data = fix_json_format(data)
 
-output_file = "all_pl_player_data2.json"
+output_file = "all_pl_player_data.json"
 with open(output_file, "w") as file:
     json.dump(fixed_data, file, indent=4)
 
