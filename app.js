@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt')
 const session = require('express-session');
 const crypto = require('crypto');
 const flash = require('connect-flash');
-
+const helmet = require('helmet');
 
 mongoose.connect('mongodb://localhost:27017/transferSuggestor');
 
@@ -51,6 +51,7 @@ const sessionConfig = {
 app.use(express.static(path.join(__dirname, 'data')));
 app.use(session(sessionConfig));
 app.use(flash());
+app.use(helmet({ contentSecurityPolicy: false })); 
 
 app.use((req, res, next) => {
     res.locals.success = req.flash('success');
