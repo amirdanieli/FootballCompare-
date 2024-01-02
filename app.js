@@ -36,6 +36,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use('/utils', express.static('utils'));
 
+const jsonFilePath = path.join(__dirname, 'data', 'all_pl_player_data.json');
+app.use('/data', express.static(path.join(__dirname, 'data')));
+
 const sessionConfig = {
     name: 'session',
     secret: randomSecret,
@@ -67,12 +70,6 @@ const requireLogin = (req, res, next) => {
     }
     next();
 }
-
-const jsonFilePath = path.join(__dirname, 'data', 'all_pl_player_data.json');
-
-app.get('/data/all_pl_player_data.json', (req, res) => {
-  res.sendFile(jsonFilePath);
-});
 
 app.get('/', (req, res) => {
     const sessionIsActive = !!req.session.user_id; 
