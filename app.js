@@ -92,7 +92,7 @@ app.post('/login', catchAsync(async (req, res) => {
 
     const foundUser = await User.findAndValidate(req.body.user.email, req.body.user.password);
     if (foundUser) {
-    req.flash('success', 'Succesfully logged in!');
+    req.flash('success', 'Welcome ' + foundUser.fName + "! You've succesfully logged in!");
 
         req.session.user_id = foundUser._id;
         const returnTo = req.session.returnTo || '/';
